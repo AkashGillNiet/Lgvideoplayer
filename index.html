@@ -11,6 +11,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column; /* Stack player and quality button vertically */
       height: 100vh;
       background-color: black;
     }
@@ -28,6 +29,19 @@
       border-top: 2px solid white; /* Border on top */
       border-bottom: 2px solid white; /* Border on bottom */
     }
+    #quality-selector {
+      margin-top: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      padding: 10px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+    #quality-selector option {
+      background-color: #333;
+      color: white;
+    }
   </style>
   <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/clappr-drm-plugin@latest/dist/clappr-drm-plugin.min.js"></script>
@@ -36,6 +50,17 @@
   <div id="player-wrapper">
     <div id="player"></div>
   </div>
+
+  <!-- Quality Select Button -->
+  <select id="quality-selector">
+    <option value="144p">144p</option>
+    <option value="240p">240p</option>
+    <option value="360p">360p</option>
+    <option value="480p">480p</option>
+    <option value="720p">720p</option>
+    <option value="1080p">1080p</option>
+    <option value="4k">4k</option>
+  </select>
 
   <script>
     // Function to get query parameters from the URL
@@ -48,6 +73,8 @@
     const videoUrl = getQueryParam('url');         // Video URL (required)
     const drmLicense = getQueryParam('license');   // DRM License URL (optional)
     const clearKey = getQueryParam('clearkey');    // Clear Key JSON string (optional)
+
+    let player;
 
     if (videoUrl) {
       // Configure Clappr options
@@ -87,12 +114,23 @@
       }
 
       // Initialize Clappr player
-      const player = new Clappr.Player(options);
+      player = new Clappr.Player(options);
 
     } else {
       // If no video URL is provided, show an error message
       document.body.innerHTML = '<h2 style="color: white; text-align: center;">No video URL provided!</h2>';
     }
+
+    // Change video quality based on selection
+    document.getElementById("quality-selector").addEventListener("change", function() {
+      const selectedQuality = this.value;
+      // Assuming the video URL changes with different quality levels
+      // You should have a way to map quality levels to different URLs
+      let qualityUrl = `${videoUrl}?quality=${selectedQuality}`;
+
+      // Update the player's source
+      player.load(qualityUrl);
+    });
   </script>
 </body>
 </html>
