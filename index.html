@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LG Video Player</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: black;
+    }
+    #player {
+      width: 80%;
+      max-width: 800px;
+      aspect-ratio: 16 / 9;
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/clappr-drm-plugin@latest/dist/clappr-drm-plugin.min.js"></script>
+</head>
+<body>
+  <div id="player"></div>
+
+  <script>
+    // Function to get query parameters
+    function getQueryParam(param) {
+      const urlParams = new URLSearchParams(window.location.search);
+      return urlParams.get(param);
+    }
+
+    // Get parameters from the query string
+    const videoUrl = getQueryParam('url');
+    const drmLicense = getQueryParam('license');
+    const clearKey = getQueryParam('clearkey');
+
+    if (videoUrl) {
+      // Clappr configuration
+      const options = {
+        source: videoUrl,
+        parentId: "#player",
+        width: "100%",
+        height: "100%",
+        autoPlay: true,
+        mute: false,
+        plugins: [Clappr.DrmPlugin],
+        drm: {},
+      };
+
+      // DRM handling
+      if (drmLicense) {
+        options.drm = {
+          widevine: {
+            url: drmLicense,
+          },
+          playready: {
+            url: drmLicense,
+          },
+        };
+      }
+
+      if (clearKey) {
+        options.drm = {
+          clearKeys: JSON.parse(clearKey), // clearkey is expected as JSON string in URL
+        };
+      }
+
+      // Initialize Clappr player
+      const player = new Clappr.Player(options);
+    } else {
+      document.body.innerHTML = '<h2 style="color: white; text-align: center;">No video URL provided!</h2>';
+    }
+  </script>
+</body>
+</html>
