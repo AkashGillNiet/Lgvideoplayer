@@ -27,19 +27,19 @@
   <div id="player"></div>
 
   <script>
-    // Function to get query parameters
+    // Function to get query parameters from the URL
     function getQueryParam(param) {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get(param);
     }
 
-    // Get parameters from the query string
-    const videoUrl = getQueryParam('url');
-    const drmLicense = getQueryParam('license');
-    const clearKey = getQueryParam('clearkey');
+    // Extract parameters
+    const videoUrl = getQueryParam('url');         // Video URL (required)
+    const drmLicense = getQueryParam('license');   // DRM License URL (optional)
+    const clearKey = getQueryParam('clearkey');    // Clear Key JSON string (optional)
 
     if (videoUrl) {
-      // Clappr configuration
+      // Configure Clappr options
       const options = {
         source: videoUrl,
         parentId: "#player",
@@ -47,31 +47,39 @@
         height: "100%",
         autoPlay: true,
         mute: false,
-        plugins: [Clappr.DrmPlugin],
-        drm: {},
+        playback: {
+          crossOrigin: 'anonymous', // Enables CORS for external sources
+        },
+        plugins: [],
       };
 
-      // DRM handling
-      if (drmLicense) {
-        options.drm = {
-          widevine: {
-            url: drmLicense,
-          },
-          playready: {
-            url: drmLicense,
-          },
-        };
-      }
+      // Add DRM configuration if license or clear key is provided
+      if (drmLicense || clearKey) {
+        options.plugins.push(Clappr.DrmPlugin);
 
-      if (clearKey) {
-        options.drm = {
-          clearKeys: JSON.parse(clearKey), // clearkey is expected as JSON string in URL
-        };
+        options.drm = {};
+        if (drmLicense) {
+          // Widevine or PlayReady license key
+          options.drm = {
+            widevine: { url: drmLicense },
+            playready: { url: drmLicense },
+          };
+        }
+        if (clearKey) {
+          // Clear Key (as JSON string)
+          try {
+            options.drm.clearKeys = JSON.parse(clearKey); // Parse Clear Key JSON
+          } catch (e) {
+            console.error("Invalid Clear Key JSON:", e);
+          }
+        }
       }
 
       // Initialize Clappr player
       const player = new Clappr.Player(options);
+
     } else {
+      // If no video URL is provided, show an error message
       document.body.innerHTML = '<h2 style="color: white; text-align: center;">No video URL provided!</h2>';
     }
   </script>
