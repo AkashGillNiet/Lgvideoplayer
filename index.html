@@ -1,136 +1,224 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>LG Video Player</title>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column; /* Stack player and quality button vertically */
-      height: 100vh;
-      background-color: black;
-    }
-    #player-wrapper {
-      width: 80%;
-      max-width: 800px;
-      aspect-ratio: 16 / 9;
-      padding-top: 2px; /* Thin border on top */
-      padding-bottom: 2px; /* Thin border on bottom */
-      position: relative; /* To avoid overlap */
-    }
-    #player {
-      width: 100%;
-      height: 100%;
-      border-top: 2px solid white; /* Border on top */
-      border-bottom: 2px solid white; /* Border on bottom */
-    }
-    #quality-selector {
-      margin-top: 10px;
-      background-color: #333;
-      color: white;
-      border: none;
-      padding: 10px;
-      font-size: 16px;
-      cursor: pointer;
-    }
-    #quality-selector option {
-      background-color: #333;
-      color: white;
-    }
-  </style>
-  <script src="https://cdn.jsdelivr.net/npm/clappr@latest/dist/clappr.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/clappr-drm-plugin@latest/dist/clappr-drm-plugin.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NietLive</title>
+    <style>
+        body {
+            background-color: #000; /* Full black background */
+            margin: 0;
+            font-family: Arial, sans-serif;
+        }
+
+        /* Header */
+        #header {
+            background-color: #fff; /* White background for the header */
+            color: black;
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 20px;
+            align-items: center;
+        }
+
+        #logo {
+            width: 120px;
+            height: auto;
+        }
+
+        #header-right {
+            display: flex;
+            align-items: center;
+        }
+
+        /* Custom Icons for Buttons */
+        #notification-btn,
+        #search-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            margin-left: 20px;
+        }
+
+        #notification-btn img,
+        #search-btn img {
+            width: 24px;
+            height: 24px;
+        }
+
+        #search-input {
+            display: none;
+            padding: 5px;
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        /* Channels Section */
+        #channels-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            gap: 20px;
+            padding: 20px;
+            justify-content: center;
+        }
+
+        .channel-box {
+            text-align: center;
+            background-color: #fff; /* White background for channel boxes */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            padding: 10px;
+        }
+
+        .channel-logo {
+            width: 100%;
+            height: 100px;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .channel-name {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        /* Notification Popup */
+        #notifications {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            background-color: #fff;
+            box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            display: none;
+        }
+
+        /* Search Animation */
+        @keyframes slideIn {
+            from {
+                width: 0;
+            }
+            to {
+                width: 200px;
+            }
+        }
+
+        /* Search Input Animation */
+        #search-input.show {
+            display: block;
+            animation: slideIn 0.5s ease-in-out;
+        }
+    </style>
 </head>
 <body>
-  <div id="player-wrapper">
-    <div id="player"></div>
-  </div>
 
-  <!-- Quality Select Button -->
-  <select id="quality-selector">
-    <option value="144p">144p</option>
-    <option value="240p">240p</option>
-    <option value="360p">360p</option>
-    <option value="480p">480p</option>
-    <option value="720p">720p</option>
-    <option value="1080p">1080p</option>
-    <option value="4k">4k</option>
-  </select>
+<!-- Header -->
+<div id="header">
+    <img id="logo" src="Nlogopng-removebg-preview.png" alt="NietLive Logo"> <!-- Upload your logo here -->
+    <div id="header-right">
+        <button id="notification-btn" onclick="toggleNotifications()">
+            <img src="images__1_-removebg-preview.png" alt="Notifications"> <!-- Upload your custom notification icon -->
+        </button>
+        <button id="search-btn" onclick="toggleSearch()">
+            <img src="images-removebg-preview.png" alt="Search"> <!-- Upload your custom search icon -->
+        </button>
+        <input type="text" id="search-input" placeholder="Search channels..." oninput="filterChannels()">
+    </div>
+</div>
 
-  <script>
-    // Function to get query parameters from the URL
-    function getQueryParam(param) {
-      const urlParams = new URLSearchParams(window.location.search);
-      return urlParams.get(param);
+<!-- Notifications -->
+<div id="notifications">
+    <h3>Notifications</h3>
+    <ul>
+        <li>New content available!</li>
+        <li>Star Sports is live now!</li>
+        <!-- Add more notifications as required -->
+    </ul>
+</div>
+
+<!-- Channels Section -->
+<div id="channels-container">
+    <!-- Channel 1 -->
+    <div class="channel-box">
+        <a href="starSports.html"> <!-- Link to the new HTML page for Star Sports -->
+            <img class="channel-logo" src="https://www.sportspro.com/wp-content/uploads/2023/03/Star-Sports.webp" alt="Star Sports">
+            <div class="channel-name">Star Sports</div>
+        </a>
+    </div>
+    <!-- Channel 2 -->
+    <div class="channel-box">
+        <a href="sonyTen.html"> <!-- Link to the new HTML page for Sony Ten -->
+            <img class="channel-logo" src="channel_logo2_url" alt="Sony Ten">
+            <div class="channel-name">Sony Ten</div>
+        </a>
+    </div>
+    <!-- Channel 3 -->
+    <div class="channel-box">
+        <a href="espn.html"> <!-- Link to the new HTML page for ESPN -->
+            <img class="channel-logo" src="channel_logo3_url" alt="ESPN">
+            <div class="channel-name">ESPN</div>
+        </a>
+    </div>
+    <!-- Channel 4 -->
+    <div class="channel-box">
+        <a href="foxSports.html"> <!-- Link to the new HTML page for Fox Sports -->
+            <img class="channel-logo" src="channel_logo4_url" alt="Fox Sports">
+            <div class="channel-name">Fox Sports</div>
+        </a>
+    </div>
+    <!-- Add more channel boxes as needed -->
+</div>
+
+<script>
+    // Sample channel data
+    const channels = [
+        { name: "Star Sports", logo: "https://www.sportspro.com/wp-content/uploads/2023/03/Star-Sports.webp", page: "starSports.html" },
+        { name: "Sony Ten", logo: "channel_logo2_url", page: "sonyTen.html" },
+        { name: "ESPN", logo: "channel_logo3_url", page: "espn.html" },
+        { name: "Fox Sports", logo: "channel_logo4_url", page: "foxSports.html" },
+        // Add more channels here
+    ];
+
+    // Function to toggle the search input visibility
+    function toggleSearch() {
+        const searchInput = document.getElementById('search-input');
+        searchInput.classList.toggle('show');
+        document.getElementById('search-btn').innerHTML = searchInput.classList.contains('show') ? 
+            '<img src="images__2_-removebg-preview (1).png" alt="Cancel"> <!-- Upload your cancel icon -->' : 
+            '<img src="images-removebg-preview.png" alt="Search">'; // Change the icon to cancel when search is active
     }
 
-    // Extract parameters
-    const videoUrl = getQueryParam('url');         // Video URL (required)
-    const drmLicense = getQueryParam('license');   // DRM License URL (optional)
-    const clearKey = getQueryParam('clearkey');    // Clear Key JSON string (optional)
+    // Function to filter channels based on search input
+    function filterChannels() {
+        const query = document.getElementById('search-input').value.toLowerCase();
+        const filteredChannels = channels.filter(channel => channel.name.toLowerCase().startsWith(query));
 
-    let player;
+        // Clear existing channel boxes
+        const container = document.getElementById('channels-container');
+        container.innerHTML = '';
 
-    if (videoUrl) {
-      // Configure Clappr options
-      const options = {
-        source: videoUrl,
-        parentId: "#player",
-        width: "100%",
-        height: "100%",
-        autoPlay: true,
-        mute: false,
-        playback: {
-          crossOrigin: 'anonymous', // Enables CORS for external sources
-        },
-        plugins: [],
-      };
-
-      // Add DRM configuration if license or clear key is provided
-      if (drmLicense || clearKey) {
-        options.plugins.push(Clappr.DrmPlugin);
-
-        options.drm = {};
-        if (drmLicense) {
-          // Widevine or PlayReady license key
-          options.drm = {
-            widevine: { url: drmLicense },
-            playready: { url: drmLicense },
-          };
-        }
-        if (clearKey) {
-          // Clear Key (as JSON string)
-          try {
-            options.drm.clearKeys = JSON.parse(clearKey); // Parse Clear Key JSON
-          } catch (e) {
-            console.error("Invalid Clear Key JSON:", e);
-          }
-        }
-      }
-
-      // Initialize Clappr player
-      player = new Clappr.Player(options);
-
-    } else {
-      // If no video URL is provided, show an error message
-      document.body.innerHTML = '<h2 style="color: white; text-align: center;">No video URL provided!</h2>';
+        // Create new channel boxes based on search result
+        filteredChannels.forEach(channel => {
+            const channelBox = document.createElement('div');
+            channelBox.classList.add('channel-box');
+            channelBox.innerHTML = `
+                <a href="${channel.page}">
+                    <img class="channel-logo" src="${channel.logo}" alt="${channel.name}">
+                    <div class="channel-name">${channel.name}</div>
+                </a>
+            `;
+            container.appendChild(channelBox);
+        });
     }
 
-    // Change video quality based on selection
-    document.getElementById("quality-selector").addEventListener("change", function() {
-      const selectedQuality = this.value;
-      // Assuming the video URL changes with different quality levels
-      // You should have a way to map quality levels to different URLs
-      let qualityUrl = `${videoUrl}?quality=${selectedQuality}`;
+    // Function to toggle notifications
+    function toggleNotifications() {
+        const notifications = document.getElementById('notifications');
+        notifications.style.display = notifications.style.display === 'block' ? 'none' : 'block';
+    }
+</script>
 
-      // Update the player's source
-      player.load(qualityUrl);
-    });
-  </script>
 </body>
 </html>
