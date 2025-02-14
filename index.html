@@ -6,15 +6,15 @@
     <title>NietLive</title>
     <style>
         body {
-            background-color: #000; /* Full black background */
+            background-color: #f4f4f4;
             margin: 0;
             font-family: Arial, sans-serif;
         }
 
         /* Header */
         #header {
-            background-color: #000; /* White background for the header */
-            color: black;
+            background-color: #181818;
+            color: white;
             display: flex;
             justify-content: space-between;
             padding: 10px 20px;
@@ -31,7 +31,7 @@
             align-items: center;
         }
 
-        /* Custom Icons for Buttons */
+        /* Custom Icons */
         #notification-btn,
         #search-btn {
             background: none;
@@ -46,17 +46,36 @@
             height: 24px;
         }
 
-        #search-input {
-            display: none;
-            padding: 5px;
-            font-size: 16px;
-            margin-left: 10px;
+        /* Search Box */
+        #search-container {
+            position: relative;
+            display: flex;
+            align-items: center;
         }
 
-        /* Channels Section */
+        #search-input {
+            width: 200px;
+            padding: 5px;
+            font-size: 16px;
+            display: none;
+            transition: all 0.3s ease-in-out;
+        }
+
+        #cancel-btn {
+            display: none;
+            position: absolute;
+            right: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: red;
+        }
+
+        /* Channels */
         #channels-container {
             display: grid;
-            grid-template-columns: repeat(2, 1fr); /* 2 columns */
+            grid-template-columns: repeat(2, 1fr);
             gap: 20px;
             padding: 20px;
             justify-content: center;
@@ -64,7 +83,7 @@
 
         .channel-box {
             text-align: center;
-            background-color: #fff; /* White background for channel boxes */
+            background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
             padding: 10px;
@@ -95,20 +114,13 @@
             display: none;
         }
 
-        /* Search Animation */
-        @keyframes slideIn {
-            from {
-                width: 0;
-            }
-            to {
-                width: 200px;
-            }
-        }
-
-        /* Search Input Animation */
-        #search-input.show {
-            display: block;
-            animation: slideIn 0.5s ease-in-out;
+        #close-notification {
+            background: none;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            float: right;
+            color: red;
         }
     </style>
 </head>
@@ -116,25 +128,31 @@
 
 <!-- Header -->
 <div id="header">
-    <img id="logo" src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/Nlogopng-removebg-preview.png" alt="NietLive Logo"> <!-- Upload your logo here -->
+    <img id="logo" src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/Nlogopng-removebg-preview.png" alt="NietLive Logo">
+    
     <div id="header-right">
         <button id="notification-btn" onclick="toggleNotifications()">
-            <img src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/images__1_-removebg-preview.png" alt="Notifications"> <!-- Upload your custom notification icon -->
+            <img src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/images__1_-removebg-preview.png" alt="Notifications">
         </button>
+
+        <div id="search-container">
+            <input type="text" id="search-input" placeholder="Search channel...." oninput="filterChannels()">
+            <button id="cancel-btn" onclick="toggleSearch()">X</button>
+        </div>
+
         <button id="search-btn" onclick="toggleSearch()">
-            <img src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/images-removebg-preview.png" alt="Search"> <!-- Upload your custom search icon -->
+            <img src="https://raw.githubusercontent.com/AkashGillNiet/NietLive/refs/heads/main/images-removebg-preview.png" alt="Search">
         </button>
-        <input type="text" id="search-input" placeholder="Search channels..." oninput="filterChannels()">
     </div>
 </div>
 
 <!-- Notifications -->
 <div id="notifications">
+    <button id="close-notification" onclick="toggleNotifications()">X</button>
     <h3>Notifications</h3>
     <ul>
         <li>New content available!</li>
-        <li>Our site adding more channels </li>
-        <!-- Add more notifications as required -->
+        <li>Star Sports is live not now!</li>
     </ul>
 </div>
 
@@ -214,52 +232,35 @@
 </div>
 
 <script>
-    // Sample channel data
-    const channels = [
-        { name: "Star Sports", logo: "https://www.sportspro.com/wp-content/uploads/2023/03/Star-Sports.webp", page: "starSports.html" },
-        { name: "Sports 18 HD 1", logo: "channel_logo2_url", page: "sonyTen.html" },
-        { name: "Sonic Tv", logo: "channel_logo3_url", page: "espn.html" },
-        { name: "Willow cricket", logo: "channel_logo4_url", page: "foxSports.html" },
-        { name: "Mh one music", logo: "https://www.sportspro.com/wp-content/uploads/2023/03/Star-Sports.webp", page: "starSports.html" },
-        { name: "ptc music", logo: "channel_logo2_url", page: "sonyTen.html" },
-        { name: "sportsmax", logo: "channel_logo3_url", page: "espn.html" },
-        { name: "Fox Sports", logo: "channel_logo4_url", page: "foxSports.html" },
-        // Add more channels here
-    ];
-
-    // Function to toggle the search input visibility
     function toggleSearch() {
         const searchInput = document.getElementById('search-input');
-        searchInput.classList.toggle('show');
-        document.getElementById('search-btn').innerHTML = searchInput.classList.contains('show') ? 
-            '<img src="images__2_-removebg-preview (1).png" alt="Cancel"> <!-- Upload your cancel icon -->' : 
-            '<img src="images-removebg-preview.png" alt="Search">'; // Change the icon to cancel when search is active
+        const cancelBtn = document.getElementById('cancel-btn');
+        const searchBtn = document.getElementById('search-btn');
+
+        if (searchInput.style.display === 'none' || searchInput.style.display === '') {
+            searchInput.style.display = 'block';
+            cancelBtn.style.display = 'block';
+            searchBtn.innerHTML = '<img src="images__2_-removebg-preview (1).png" alt="Cancel">';
+            searchInput.focus();
+        } else {
+            searchInput.style.display = 'none';
+            cancelBtn.style.display = 'none';
+            searchBtn.innerHTML = '<img src="images-removebg-preview.png" alt="Search">';
+            searchInput.value = ""; // सर्च बॉक्स क्लियर करें
+            filterChannels(); // सभी चैनल वापस दिखाएं
+        }
     }
 
-    // Function to filter channels based on search input
     function filterChannels() {
         const query = document.getElementById('search-input').value.toLowerCase();
-        const filteredChannels = channels.filter(channel => channel.name.toLowerCase().startsWith(query));
+        const channelBoxes = document.querySelectorAll('.channel-box');
 
-        // Clear existing channel boxes
-        const container = document.getElementById('channels-container');
-        container.innerHTML = '';
-
-        // Create new channel boxes based on search result
-        filteredChannels.forEach(channel => {
-            const channelBox = document.createElement('div');
-            channelBox.classList.add('channel-box');
-            channelBox.innerHTML = `
-                <a href="${channel.page}">
-                    <img class="channel-logo" src="${channel.logo}" alt="${channel.name}">
-                    <div class="channel-name">${channel.name}</div>
-                </a>
-            `;
-            container.appendChild(channelBox);
+        channelBoxes.forEach(box => {
+            const channelName = box.querySelector('.channel-name').textContent.toLowerCase();
+            box.style.display = channelName.startsWith(query) ? "block" : "none";
         });
     }
 
-    // Function to toggle notifications
     function toggleNotifications() {
         const notifications = document.getElementById('notifications');
         notifications.style.display = notifications.style.display === 'block' ? 'none' : 'block';
